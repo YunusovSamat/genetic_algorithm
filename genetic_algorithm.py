@@ -1,13 +1,15 @@
 import random
+import copy
 
 
 class GeneticAlgorithm:
     def __init__(self):
-        self.VERTICES_LEN = 5
+        self.VERTICES_LEN = 10
         # Название вершин.
         self.VERTICES = [chr(i) for i in range(65, 65 + self.VERTICES_LEN)]
         self.graph = dict()
-        self.populations = [0] * 5
+        self.POPULATIONS_LEN = 10
+        self.populations = [0] * self.POPULATIONS_LEN
 
         self.init_graph()
         self.init_shuffle_populations()
@@ -21,7 +23,7 @@ class GeneticAlgorithm:
 
     # Инициализация случайных популяций.
     def init_shuffle_populations(self):
-        for i in range(len(self.populations)):
+        for i in range(self.POPULATIONS_LEN):
             self.populations[i] = self.VERTICES.copy()
             random.shuffle(self.populations[i])
 
@@ -38,6 +40,24 @@ class GeneticAlgorithm:
         length += self.graph[min(vx_last, vx_first)][max(vx_last, vx_first)]
         return length
 
+    def mutation_populations(self):
+        pops_temp = copy.deepcopy(self.populations)
+        for i in range(self.VERTICES_LEN):
+            vx1_i = random.randint(0, self.VERTICES_LEN-1)
+            while True:
+                vx2_i = random.randint(0, self.VERTICES_LEN-1)
+                if vx1_i != vx2_i:
+                    break
+            pops_temp[i][vx1_i], pops_temp[i][vx2_i] = pops_temp[i][vx2_i], pops_temp[i][vx1_i]
+        self.populations.extend(pops_temp)
+        self.populations.sort(key=lambda k: self.get_edges_length(k))
+        self.populations = self.populations[:self.POPULATIONS_LEN]
+
+    def cycle_populations(self, count):
+        for i in range(count):
+            self.mutation_populations()
+            self.print_populations()
+
     # Метод для вывода графа.
     def print_graph(self):
         print(f'{"-"*8} GRAPH {"-"*8}')
@@ -53,12 +73,12 @@ class GeneticAlgorithm:
     # Метод для вывода популяций.
     def print_populations(self):
         for pop in self.populations:
-            print(' -> '.join(pop))
+            print(f'{" -> ".join(pop)} | all = {self.get_edges_length(pop)}')
+        print('-'*25)
 
 
 if __name__ == '__main__':
     ga = GeneticAlgorithm()
     ga.print_graph()
-    path = ['A', 'B', 'C']
-    print(ga.get_edges_length(path))
     ga.print_populations()
+    ga.cycle_populations(50)
