@@ -1,10 +1,12 @@
 import random
 import copy
 
+from TaskPackage.genetic_algorithm.data import inputMatrix
+
 
 class GeneticAlgorithm:
-    def __init__(self):
-        self.VERTICES_LEN = 10
+    def __init__(self, vertices_len):
+        self.VERTICES_LEN = vertices_len
         # Название вершин.
         self.VERTICES = [chr(i) for i in range(65, 65 + self.VERTICES_LEN)]
         self.graph = dict()
@@ -15,11 +17,17 @@ class GeneticAlgorithm:
         self.init_shuffle_populations()
 
     # Инициализация графа со случайными ребрами.
+    # def init_graph(self):
+    #     for i in range(self.VERTICES_LEN-1):
+    #         self.graph[self.VERTICES[i]] = dict()
+    #         for j in range(i+1, len(self.VERTICES)):
+    #             self.graph[self.VERTICES[i]][self.VERTICES[j]] = random.randint(1, 10)
+
     def init_graph(self):
         for i in range(self.VERTICES_LEN-1):
             self.graph[self.VERTICES[i]] = dict()
             for j in range(i+1, len(self.VERTICES)):
-                self.graph[self.VERTICES[i]][self.VERTICES[j]] = random.randint(1, 10)
+                self.graph[self.VERTICES[i]][self.VERTICES[j]] = inputMatrix[i][j]
 
     # Инициализация случайных популяций.
     def init_shuffle_populations(self):
@@ -42,7 +50,7 @@ class GeneticAlgorithm:
 
     def mutation_populations(self):
         pops_temp = copy.deepcopy(self.populations)
-        for i in range(self.VERTICES_LEN):
+        for i in range(self.VERTICES_LEN-1):
             vx1_i = random.randint(0, self.VERTICES_LEN-1)
             while True:
                 vx2_i = random.randint(0, self.VERTICES_LEN-1)
@@ -72,13 +80,13 @@ class GeneticAlgorithm:
 
     # Метод для вывода популяций.
     def print_populations(self):
-        for pop in self.populations:
-            print(f'{" -> ".join(pop)} | all = {self.get_edges_length(pop)}')
+        for popul in self.populations:
+            print(f'{" -> ".join(popul)} | all = {self.get_edges_length(popul)}')
         print('-'*25)
 
 
 if __name__ == '__main__':
-    ga = GeneticAlgorithm()
+    ga = GeneticAlgorithm(11)
     ga.print_graph()
     ga.print_populations()
     ga.cycle_populations(50)
